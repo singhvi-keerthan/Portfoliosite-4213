@@ -125,7 +125,7 @@
 
       {
         "question": "Tell me about his work at Contineu.",
-        "answer": "Contineu is a construction-tech AI startup. Keerthan came in as the first non-technical hire after two conversations with the founder. He built the CS and implementation function from the ground up: wrote the SOPs, designed onboarding, trained 15+ engineers across 8 sites, and got to 100% process standardization. In parallel, he managed global procurement, saved INR 7L through vendor negotiations, handled 3+ international imports with zero compliance errors, and led the research for U.S. market entry. He also fed product development directly by translating field observations into UI/UX improvements with the engineering team. One person, six months, no job description."
+        "answer": "Contineu is a construction-tech AI startup. Keerthan came in as the first non-technical hire after two conversations with the founder. He built the CS and implementation function from the ground up: wrote the SOPs, designed onboarding, trained 15+ engineers across 8 sites, and got to 100% process standardization. In parallel, he managed global procurement, saved INR 7L through vendor negotiations, handled 3+ international imports with zero compliance errors, and led the research for U.S. market entry. He also fed product development directly by translating field observations into UI/UX improvements with the engineering team. One person, seven months, no job description."
       },
 
       {
@@ -170,7 +170,27 @@
 
       {
         "question": "What is Keerthan's educational background?",
-        "answer": "BBA in Finance from Christ University, Bengaluru. Graduated 2025 with a GPA of 8.44. Bloomberg Market Concepts certified. The more relevant education, honestly, is seven years running a retail business and six months as the only non-technical operator at an early-stage startup."
+        "answer": "BBA in Finance from Christ University, Bengaluru. Graduated 2025 with a GPA of 8.44. Bloomberg Market Concepts certified. The more relevant education, honestly, is seven years running a retail business and seven months as the only non-technical operator at an early-stage startup."
+      },
+
+      {
+        "question": "Why did he leave Contineu? / What went wrong at Contineu?",
+        "answer": "Nothing went wrong. The role gradually shifted toward travel and deployment, which was not what he had signed up for. He is now looking for something broader, zero-to-one, cross-functional, closer to strategy and growth."
+      },
+
+      {
+        "question": "Is he difficult to manage?",
+        "answer": "Not difficult at all. He takes direction well, communicates clearly, and flags problems early. What he does not need is approval at every step. Give him the goal and the context, and he will figure out the path and keep you in the loop without needing to be chased."
+      },
+
+      {
+        "question": "What makes you think he would actually stick around?",
+        "answer": "He stays when the work is meaningful and the people are good. That is really it. He is not wedded to a particular stage or size. What disengages him is work that does not move anything forward. What keeps him is the opposite."
+      },
+
+      {
+        "question": "That is a pretty short stint, what happened? / He only lasted seven months?",
+        "answer": "Seven months at an early-stage startup where he built multiple functions from scratch is not a short stint, it is a full cycle. The role shifted toward travel and deployment over time, which did not align with what he was there to do. He moved on. No drama."
       },
 
       {
@@ -218,7 +238,7 @@
 
       {
         "question": "What is Keerthan's biggest weakness?",
-        "answer": "He moves fast and documentation sometimes lags behind. When you are in the middle of building something, writing the SOP feels like a secondary task. He has learned to treat it as part of the work rather than a follow-up, but it is something he actively manages."
+        "answer": "Some days the thinking just does not come. Not burnout, not laziness, just a flat day where the output does not match the effort. He rides it out and gets back to it."
       },
 
       {
@@ -311,7 +331,7 @@
 
       {
         "question": "What is Keerthan bad at?",
-        "answer": "Sitting still when there is a problem to solve. Probably also at pretending he does not already have an opinion on which LLM you should be using."
+        "answer": "Some days the thinking just does not come and the productivity takes a hit. That is the real answer. Not a productivity hack, just a flat day. He rides it out."
       },
 
       {
