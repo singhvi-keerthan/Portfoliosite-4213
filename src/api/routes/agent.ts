@@ -4,6 +4,23 @@ import { getGoogle, SYSTEM_PROMPT } from "../agent";
 
 export const agentRoutes = new Hono();
 
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 20;
+const RATE_WINDOW_MS = 60_000;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > RATE_LIMIT;
+}
+
 interface UIMessagePart {
   type: string;
   text?: string;
@@ -32,10 +49,15 @@ function uiToCoreMessages(uiMessages: UIMsg[]): CoreMessage[] {
 
 agentRoutes.post("/messages", async (c) => {
   try {
+    const ip = c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for") || "unknown";
+    if (isRateLimited(ip)) {
+      return c.json({ error: "Too many requests. Please wait a moment." }, 429);
+    }
+
     const { messages } = await c.req.json();
     const coreMessages = uiToCoreMessages(messages);
 
-    const google = getGoogle();
+    const google = await getGoogle();
 
     const result = streamText({
       model: google("gemini-2.5-flash"),

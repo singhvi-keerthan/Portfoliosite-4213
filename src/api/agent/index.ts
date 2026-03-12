@@ -5,12 +5,23 @@ import dataset from "./dataset.json";
 
 // Resolve API key with fallback — env from cloudflare:workers can be
 // undefined after sandbox restarts if the binding isn't re-hydrated.
-function getGeminiApiKey(): string {
-  const key =
+async function getGeminiApiKey(): Promise<string> {
+  let key =
     env.GOOGLE_GENERATIVE_AI_API_KEY ??
     (typeof process !== "undefined"
       ? process.env.GOOGLE_GENERATIVE_AI_API_KEY
       : undefined);
+
+  // Retry once after a short delay — the Cloudflare env binding can be
+  // undefined right after a cold start but re-hydrates within milliseconds.
+  if (!key) {
+    await new Promise((r) => setTimeout(r, 500));
+    key =
+      env.GOOGLE_GENERATIVE_AI_API_KEY ??
+      (typeof process !== "undefined"
+        ? process.env.GOOGLE_GENERATIVE_AI_API_KEY
+        : undefined);
+  }
 
   if (!key) {
     throw new Error(
@@ -20,9 +31,9 @@ function getGeminiApiKey(): string {
   return key;
 }
 
-export function getGoogle() {
+export async function getGoogle() {
   return createGoogleGenerativeAI({
-    apiKey: getGeminiApiKey(),
+    apiKey: await getGeminiApiKey(),
   });
 }
 
