@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { streamText, type CoreMessage } from "ai";
-import { google, SYSTEM_PROMPT } from "../agent";
+import { getGoogle, SYSTEM_PROMPT } from "../agent";
 
 export const agentRoutes = new Hono();
 
@@ -33,6 +33,8 @@ function uiToCoreMessages(uiMessages: UIMsg[]): CoreMessage[] {
 agentRoutes.post("/messages", async (c) => {
   const { messages } = await c.req.json();
   const coreMessages = uiToCoreMessages(messages);
+
+  const google = getGoogle();
 
   const result = streamText({
     model: google("gemini-2.5-flash"),

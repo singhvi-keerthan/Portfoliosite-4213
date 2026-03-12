@@ -21,7 +21,7 @@ function BatIcon({
   return (
     <img
       src="/chatbat-icon.png"
-      alt="ChatBat"
+      alt="Alfred"
       className={className}
       style={{
         filter: filterMap[variant],
@@ -85,33 +85,6 @@ function MessagePart({ part }: { part: UIMessage["parts"][number] }) {
   }
   return null;
 }
-
-const VISITOR_OPTIONS = [
-  {
-    id: "recruiter",
-    label: "Recruiter / Hiring Manager",
-    desc: "Evaluating Keerthan for a role",
-    icon: "🎯",
-  },
-  {
-    id: "founder",
-    label: "Founder / Operator",
-    desc: "Exploring team fit",
-    icon: "🚀",
-  },
-  {
-    id: "collaborator",
-    label: "Collaborate / Connect",
-    desc: "Partnership or professional connection",
-    icon: "🤝",
-  },
-  {
-    id: "explorer",
-    label: "Just exploring",
-    desc: "Curious about Keerthan",
-    icon: "👀",
-  },
-];
 
 // ─── Popup / Tooltip nudge near the bubble ───────────────────────
 function BubblePopup({
@@ -229,9 +202,9 @@ function BubblePopup({
           />
           <div className="bg-[#1a1a1d] border border-[#2a2a2d] rounded-xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_16px_rgba(232,121,59,0.06)]">
             <p className="text-[#d4d4d4] text-[13px] leading-[1.55]">
-              Not all heroes wear capes. Some answer questions.{" "}
+              Bruce Wayne had Alfred. So does Keerthan.{" "}
               <span className="text-[#e8793b] font-medium">
-                Click to know more about Keerthan.
+                Click to ask anything.
               </span>
             </p>
           </div>
@@ -280,10 +253,6 @@ export default function ChatBubble() {
     setInput("");
   };
 
-  const handleVisitorSelect = (option: (typeof VISITOR_OPTIONS)[number]) => {
-    sendMessage({ text: `${option.label} — ${option.desc}` });
-  };
-
   return (
     <>
       {/* Chat Panel */}
@@ -303,7 +272,7 @@ export default function ChatBubble() {
               </div>
               <div>
                 <p className="text-white font-semibold text-sm leading-tight">
-                  ChatBat
+                  Alfred
                 </p>
                 <p className="text-white/70 text-xs">
                   Knows everything about him — on and off paper
@@ -332,42 +301,20 @@ export default function ChatBubble() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-thin">
-            {/* Welcome message with visitor type buttons */}
+            {/* Welcome message — simple greeting, no visitor buttons */}
             {messages.length === 0 && (
-              <div className="space-y-4">
-                <div className="flex gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-[#e8793b]/15 flex items-center justify-center shrink-0 mt-0.5 p-1">
-                    <BatIcon className="w-full h-full" variant="orange" />
-                  </div>
-                  <div className="bg-[#1a1a1d] rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-                    <p className="text-[#d4d4d4] text-sm leading-relaxed">
-                      Hey, good to have you here. I'm{" "}
-                      <span className="text-[#e8793b] font-semibold">
-                        ChatBat
-                      </span>
-                      . Before we get into it — quick question: what brings you
-                      to Keerthan's portfolio?
-                    </p>
-                  </div>
+              <div className="flex gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-[#e8793b]/15 flex items-center justify-center shrink-0 mt-0.5 p-1">
+                  <BatIcon className="w-full h-full" variant="orange" />
                 </div>
-
-                {/* Visitor type buttons */}
-                <div className="pl-9 space-y-2">
-                  {VISITOR_OPTIONS.map((option) => (
-                    <button
-                      key={option.id}
-                      onClick={() => handleVisitorSelect(option)}
-                      className="group flex items-center gap-3 w-full text-left px-3.5 py-2.5 bg-[#0f0f11] border border-[#1e1e21] rounded-xl hover:border-[#e8793b]/40 hover:bg-[#e8793b]/5 transition-all duration-200 cursor-pointer"
-                    >
-                      <span className="text-base">{option.icon}</span>
-                      <div>
-                        <p className="text-[#d4d4d4] text-sm font-medium group-hover:text-[#fafaf9] transition-colors">
-                          {option.label}
-                        </p>
-                        <p className="text-[#6a6a6a] text-xs">{option.desc}</p>
-                      </div>
-                    </button>
-                  ))}
+                <div className="bg-[#1a1a1d] rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
+                  <p className="text-[#d4d4d4] text-sm leading-relaxed">
+                    Hey, welcome. I'm{" "}
+                    <span className="text-[#e8793b] font-semibold">
+                      Alfred
+                    </span>{" "}
+                    — Keerthan's portfolio assistant. What would you like to know?
+                  </p>
                 </div>
               </div>
             )}
@@ -423,7 +370,7 @@ export default function ChatBubble() {
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask ChatBat anything..."
+                placeholder="Ask Alfred anything..."
                 className="flex-1 bg-transparent text-[#fafaf9] text-sm py-2 outline-none placeholder:text-[#6a6a6a]"
                 disabled={isLoading}
               />
