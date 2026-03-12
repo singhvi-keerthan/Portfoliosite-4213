@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { streamText, type CoreMessage } from "ai";
 import { getGoogle, SYSTEM_PROMPT } from "../agent";
+import { database } from "../database";
+import { chatLogs } from "../database/schema";
 
 export const agentRoutes = new Hono();
 
@@ -57,12 +59,28 @@ agentRoutes.post("/messages", async (c) => {
     const { messages } = await c.req.json();
     const coreMessages = uiToCoreMessages(messages);
 
+    // Log the latest user question (non-blocking)
+    const lastUserMessage = coreMessages.filter((m) => m.role === "user").pop();
+    if (lastUserMessage && typeof lastUserMessage.content === "string") {
+      const sessionId = c.req.header("x-session-id") || "anonymous";
+      c.executionCtx.waitUntil(
+        database.insert(chatLogs).values({
+          question: lastUserMessage.content.slice(0, 500),
+          timestamp: new Date().toISOString(),
+          sessionId,
+        }).catch((err) => console.error("[Alfred] Failed to log chat:", err))
+      );
+    }
+
+    // Keep only the last 10 messages to prevent context window overflow
+    const trimmedMessages = coreMessages.slice(-10);
+
     const google = await getGoogle();
 
     const result = streamText({
       model: google("gemini-2.5-flash"),
       system: SYSTEM_PROMPT,
-      messages: coreMessages,
+      messages: trimmedMessages,
     });
 
     return result.toUIMessageStreamResponse();

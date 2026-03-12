@@ -229,9 +229,15 @@ export default function ChatBubble() {
   const [hasOpened, setHasOpened] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const sessionIdRef = useRef(
+    typeof crypto !== "undefined" ? crypto.randomUUID() : Math.random().toString(36).slice(2)
+  );
 
   const { messages, sendMessage, status, error } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/agent/messages" }),
+    transport: new DefaultChatTransport({
+      api: "/api/agent/messages",
+      headers: { "x-session-id": sessionIdRef.current },
+    }),
   });
 
   const [input, setInput] = useState("");
@@ -239,6 +245,7 @@ export default function ChatBubble() {
   const isError = status === "error";
   const [reportSent, setReportSent] = useState(false);
   const [reportSending, setReportSending] = useState(false);
+  const [slowResponse, setSlowResponse] = useState(false);
 
   const handleChipClick = (question: string) => {
     if (isLoading) return;
@@ -270,6 +277,17 @@ export default function ChatBubble() {
       setReportSending(false);
     }
   }, [isError]);
+
+  // Show "taking longer than usual" after 10 seconds of waiting
+  useEffect(() => {
+    if (isLoading) {
+      setSlowResponse(false);
+      const timer = setTimeout(() => setSlowResponse(true), 10000);
+      return () => clearTimeout(timer);
+    } else {
+      setSlowResponse(false);
+    }
+  }, [isLoading]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -305,6 +323,20 @@ export default function ChatBubble() {
       console.error("[Alfred] Failed to send error report");
     } finally {
       setReportSending(false);
+    }
+  };
+
+  const handleRetry = () => {
+    const lastUserMsg = [...messages]
+      .reverse()
+      .find((m) => m.role === "user");
+    const lastUserText =
+      lastUserMsg?.parts
+        ?.filter((p) => p.type === "text" && "text" in p)
+        .map((p) => (p as { type: "text"; text: string }).text)
+        .join("") || "";
+    if (lastUserText) {
+      sendMessage({ text: lastUserText });
     }
   };
 
@@ -423,11 +455,14 @@ export default function ChatBubble() {
                     <div className="w-2 h-2 rounded-full bg-[#e8793b]/60 animate-bounce [animation-delay:150ms]" />
                     <div className="w-2 h-2 rounded-full bg-[#e8793b]/60 animate-bounce [animation-delay:300ms]" />
                   </div>
+                  {slowResponse && (
+                    <p className="text-[#8a8a8a] text-xs mt-2">This is taking longer than usual...</p>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Error state with Report Issue button */}
+            {/* Error state with Try Again + Report Issue buttons */}
             {isError && (
               <div className="flex gap-2.5">
                 <div className="w-7 h-7 rounded-full bg-red-500/15 flex items-center justify-center shrink-0 mt-0.5">
@@ -439,21 +474,29 @@ export default function ChatBubble() {
                   <p className="text-red-400 text-sm mb-2">
                     Something went wrong. Alfred hit a snag.
                   </p>
-                  <button
-                    onClick={handleReportIssue}
-                    disabled={reportSending || reportSent}
-                    className={`text-xs px-3 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${
-                      reportSent
-                        ? "bg-green-500/15 text-green-400 border border-green-500/20"
-                        : "bg-[#e8793b]/15 text-[#e8793b] border border-[#e8793b]/30 hover:bg-[#e8793b]/25"
-                    } disabled:cursor-not-allowed`}
-                  >
-                    {reportSending
-                      ? "Sending..."
-                      : reportSent
-                        ? "Report sent — thanks!"
-                        : "Report issue"}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleRetry}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#e8793b]/15 text-[#e8793b] border border-[#e8793b]/30 hover:bg-[#e8793b]/25 transition-all duration-200 cursor-pointer"
+                    >
+                      Try again
+                    </button>
+                    <button
+                      onClick={handleReportIssue}
+                      disabled={reportSending || reportSent}
+                      className={`text-xs px-3 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${
+                        reportSent
+                          ? "bg-green-500/15 text-green-400 border border-green-500/20"
+                          : "bg-[#1a1a1d] text-[#8a8a8a] border border-[#2a2a2d] hover:text-[#d4d4d4] hover:border-[#3a3a3d]"
+                      } disabled:cursor-not-allowed`}
+                    >
+                      {reportSending
+                        ? "Sending..."
+                        : reportSent
+                          ? "Report sent — thanks!"
+                          : "Report issue"}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -471,13 +514,14 @@ export default function ChatBubble() {
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask Alfred anything..."
+                placeholder={isError ? "Hit 'Try again' or report the issue above" : "Ask Alfred anything..."}
+                maxLength={500}
                 className="flex-1 bg-transparent text-[#fafaf9] text-sm py-2 outline-none placeholder:text-[#6a6a6a]"
-                disabled={isLoading}
+                disabled={isLoading || isError}
               />
               <button
                 type="submit"
-                disabled={isLoading || !input.trim()}
+                disabled={isLoading || isError || !input.trim()}
                 className="w-8 h-8 rounded-lg bg-[#e8793b] flex items-center justify-center transition-all duration-200 hover:bg-[#d46a2e] disabled:opacity-30 disabled:cursor-not-allowed shrink-0 cursor-pointer"
               >
                 <svg
@@ -504,6 +548,7 @@ export default function ChatBubble() {
         onClick={() => setIsOpen(!isOpen)}
         onMouseEnter={onBubbleMouseEnter}
         onMouseLeave={onBubbleMouseLeave}
+        aria-label={isOpen ? "Close chat" : "Chat with Alfred"}
         className={`fixed bottom-5 left-5 z-50 w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 ease-out cursor-pointer shadow-[0_4px_20px_rgba(232,121,59,0.35)] hover:shadow-[0_6px_28px_rgba(232,121,59,0.5)] hover:scale-105 active:scale-95 ${
           isOpen
             ? "bg-[#1a1a1d] border border-[#2a2a2b]"

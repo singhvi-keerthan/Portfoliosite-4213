@@ -1,1 +1,16 @@
-{"id":"hcikh6yvz9jqnbhj34pvcqas3d370w6q","url":"https://example.com","previewPort":6208,"name":"My Website","description":"A website built with Runable","ogImage":"/og-image.png","favicon":"/vite.svg","twitter":{"card":"summary_large_image","site":"@runable"},"themeColor":"#000000","previewUrl":"https://6208-iuja6f12774wywtt5a3ty.e2b.app","port":8393}
+{
+  "id": "hcikh6yvz9jqnbhj34pvcqas3d370w6q",
+  "url": "https://keerthansinghvi.com",
+  "previewPort": 6208,
+  "name": "Keerthan Singhvi — Founder's Office",
+  "description": "Portfolio of Keerthan Singhvi — strategy, GTM, and product operator. Ask Alfred anything.",
+  "ogImage": "/og-image.png",
+  "favicon": "/favicon.ico",
+  "twitter": {
+    "card": "summary_large_image",
+    "site": "@keerthansinghvi"
+  },
+  "themeColor": "#e8793b",
+  "previewUrl": "https://6208-iuja6f12774wywtt5a3ty.e2b.app",
+  "port": 8393
+}
