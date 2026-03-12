@@ -230,12 +230,15 @@ export default function ChatBubble() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/agent/messages" }),
   });
 
   const [input, setInput] = useState("");
   const isLoading = status === "streaming" || status === "submitted";
+  const isError = status === "error";
+  const [reportSent, setReportSent] = useState(false);
+  const [reportSending, setReportSending] = useState(false);
 
   const handleChipClick = (question: string) => {
     if (isLoading) return;
@@ -260,11 +263,49 @@ export default function ChatBubble() {
     }
   }, [isOpen]);
 
+  // Reset report state when error clears
+  useEffect(() => {
+    if (!isError) {
+      setReportSent(false);
+      setReportSending(false);
+    }
+  }, [isError]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
     sendMessage({ text: input });
     setInput("");
+  };
+
+  const handleReportIssue = async () => {
+    if (reportSending || reportSent) return;
+    setReportSending(true);
+    try {
+      const lastUserMsg = [...messages]
+        .reverse()
+        .find((m) => m.role === "user");
+      const lastUserText =
+        lastUserMsg?.parts
+          ?.filter((p) => p.type === "text" && "text" in p)
+          .map((p) => (p as { type: "text"; text: string }).text)
+          .join("") || "";
+
+      await fetch("/api/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          errorMessage: error?.message || "Unknown chat error",
+          userMessage: lastUserText,
+          userAgent: navigator.userAgent,
+        }),
+      });
+      setReportSent(true);
+    } catch {
+      console.error("[Alfred] Failed to send error report");
+    } finally {
+      setReportSending(false);
+    }
   };
 
   return (
@@ -382,6 +423,37 @@ export default function ChatBubble() {
                     <div className="w-2 h-2 rounded-full bg-[#e8793b]/60 animate-bounce [animation-delay:150ms]" />
                     <div className="w-2 h-2 rounded-full bg-[#e8793b]/60 animate-bounce [animation-delay:300ms]" />
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Error state with Report Issue button */}
+            {isError && (
+              <div className="flex gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-red-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                  </svg>
+                </div>
+                <div className="bg-[#1a1a1d] border border-red-500/20 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
+                  <p className="text-red-400 text-sm mb-2">
+                    Something went wrong. Alfred hit a snag.
+                  </p>
+                  <button
+                    onClick={handleReportIssue}
+                    disabled={reportSending || reportSent}
+                    className={`text-xs px-3 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${
+                      reportSent
+                        ? "bg-green-500/15 text-green-400 border border-green-500/20"
+                        : "bg-[#e8793b]/15 text-[#e8793b] border border-[#e8793b]/30 hover:bg-[#e8793b]/25"
+                    } disabled:cursor-not-allowed`}
+                  >
+                    {reportSending
+                      ? "Sending..."
+                      : reportSent
+                        ? "Report sent — thanks!"
+                        : "Report issue"}
+                  </button>
                 </div>
               </div>
             )}

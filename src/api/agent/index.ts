@@ -13,11 +13,11 @@ function getGeminiApiKey(): string {
       : undefined);
 
   if (!key) {
-    console.error(
+    throw new Error(
       "[Alfred] GOOGLE_GENERATIVE_AI_API_KEY is missing from both cloudflare env and process.env"
     );
   }
-  return key ?? "";
+  return key;
 }
 
 export function getGoogle() {

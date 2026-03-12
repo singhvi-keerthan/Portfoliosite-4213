@@ -31,16 +31,23 @@ function uiToCoreMessages(uiMessages: UIMsg[]): CoreMessage[] {
 }
 
 agentRoutes.post("/messages", async (c) => {
-  const { messages } = await c.req.json();
-  const coreMessages = uiToCoreMessages(messages);
+  try {
+    const { messages } = await c.req.json();
+    const coreMessages = uiToCoreMessages(messages);
 
-  const google = getGoogle();
+    const google = getGoogle();
 
-  const result = streamText({
-    model: google("gemini-2.5-flash"),
-    system: SYSTEM_PROMPT,
-    messages: coreMessages,
-  });
+    const result = streamText({
+      model: google("gemini-2.5-flash"),
+      system: SYSTEM_PROMPT,
+      messages: coreMessages,
+    });
 
-  return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse();
+  } catch (err) {
+    console.error("[Alfred] Agent error:", err);
+    const message =
+      err instanceof Error ? err.message : "An unexpected error occurred";
+    return c.json({ error: message }, 500);
+  }
 });

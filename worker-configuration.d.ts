@@ -12,6 +12,7 @@ declare namespace Cloudflare {
 		AI_GATEWAY_API_KEY: string;
 		AUTUMN_SECRET_KEY: string;
 		GOOGLE_GENERATIVE_AI_API_KEY: string;
+		RESEND_API_KEY: string;
 		BUCKET: R2Bucket;
 		DB: D1Database;
 	}
@@ -21,7 +22,7 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "BETTER_AUTH_SECRET" | "VITE_BASE_URL" | "AI_GATEWAY_BASE_URL" | "AI_GATEWAY_API_KEY" | "AUTUMN_SECRET_KEY" | "GOOGLE_GENERATIVE_AI_API_KEY">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "BETTER_AUTH_SECRET" | "VITE_BASE_URL" | "AI_GATEWAY_BASE_URL" | "AI_GATEWAY_API_KEY" | "AUTUMN_SECRET_KEY" | "GOOGLE_GENERATIVE_AI_API_KEY" | "RESEND_API_KEY">> {}
 }
 
 // Begin runtime types

@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from "hono/cors"
 import { agentRoutes } from "./routes/agent";
+import { reportRoutes } from "./routes/report";
 
 const app = new Hono()
   .basePath('api');
@@ -12,5 +13,6 @@ app.use(cors({
 app.get('/ping', (c) => c.json({ message: `Pong! ${Date.now()}` }));
 
 app.route("/agent", agentRoutes);
+app.route("/report", reportRoutes);
 
 export default app;
