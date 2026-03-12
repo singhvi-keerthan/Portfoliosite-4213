@@ -214,6 +214,15 @@ function BubblePopup({
   };
 }
 
+// ─── Suggested questions (shown before first message) ────────────
+const SUGGESTED_QUESTIONS = [
+  "What has Keerthan actually built?",
+  "How does he handle not knowing something?",
+  "What is he like outside of work?",
+  "Can you roast him a little?",
+  "Why is the chatbot called Alfred?",
+];
+
 // ─── Main Component ──────────────────────────────────────────────
 export default function ChatBubble() {
   const [isOpen, setIsOpen] = useState(false);
@@ -227,6 +236,11 @@ export default function ChatBubble() {
 
   const [input, setInput] = useState("");
   const isLoading = status === "streaming" || status === "submitted";
+
+  const handleChipClick = (question: string) => {
+    if (isLoading) return;
+    sendMessage({ text: question });
+  };
 
   const { popup, onBubbleMouseEnter, onBubbleMouseLeave } = BubblePopup({
     isOpen,
@@ -301,22 +315,37 @@ export default function ChatBubble() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-thin">
-            {/* Welcome message — simple greeting, no visitor buttons */}
+            {/* Welcome message + suggested question chips */}
             {messages.length === 0 && (
-              <div className="flex gap-2.5">
-                <div className="w-7 h-7 rounded-full bg-[#e8793b]/15 flex items-center justify-center shrink-0 mt-0.5 p-1">
-                  <BatIcon className="w-full h-full" variant="orange" />
+              <>
+                <div className="flex gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-[#e8793b]/15 flex items-center justify-center shrink-0 mt-0.5 p-1">
+                    <BatIcon className="w-full h-full" variant="orange" />
+                  </div>
+                  <div className="bg-[#1a1a1d] rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
+                    <p className="text-[#d4d4d4] text-sm leading-relaxed">
+                      Hey, I'm{" "}
+                      <span className="text-[#e8793b] font-semibold">
+                        Alfred
+                      </span>
+                      . Ask me anything about Keerthan.
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-[#1a1a1d] rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
-                  <p className="text-[#d4d4d4] text-sm leading-relaxed">
-                    Hey, welcome. I'm{" "}
-                    <span className="text-[#e8793b] font-semibold">
-                      Alfred
-                    </span>{" "}
-                    — Keerthan's portfolio assistant. What would you like to know?
-                  </p>
+
+                {/* Suggested question chips */}
+                <div className="flex flex-wrap gap-2 pl-[38px]">
+                  {SUGGESTED_QUESTIONS.map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => handleChipClick(q)}
+                      className="text-[13px] leading-snug text-[#d4d4d4] bg-[#1a1a1d] border border-[#2a2a2d] rounded-xl px-3.5 py-2 hover:border-[#e8793b]/50 hover:text-[#e8793b] transition-all duration-200 cursor-pointer text-left"
+                    >
+                      {q}
+                    </button>
+                  ))}
                 </div>
-              </div>
+              </>
             )}
 
             {/* Message thread */}
